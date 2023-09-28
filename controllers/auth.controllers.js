@@ -4,23 +4,68 @@ const CreateError = require("../utils/error/dp-error").CreateError;
 const logger = require("../lib/logger").logger;
 const db = require("../lib/database").database;
 const fromEntities = require("../utils/entity")
-const APP_CONFIG = require("../config/app.config.json");
+const { hashSync, compareSync } = require("bcrypt-nodejs");
+const jwt = require('jsonwebtoken');
 
-const cookieName = APP_CONFIG.cookie.name;
-const cookieConfig = {
-    maxAge: parseInt(APP_CONFIG.cookie.config.maxAge),
-    httpOnly: APP_CONFIG.cookie.config.httpOnly,
-    secure: APP_CONFIG.cookie.config.secure,
-    sameSite: APP_CONFIG.cookie.config.sameSite,
-};
-
-exports.postSignup = async (req, res, next) => {
+exports.postSignupSelf = async (req, res, next) => {
     try {
         const request = fromAdaptReq.adaptReq(req, res)
-        console.log(request)
+        const roleTable = db.methods.Role({
+            logger, CreateError
+        });
+        const usersTable = db.methods.User({
+            logger, CreateError
+        });
+
+        let entity = (fromEntities.entities
+            .Auth
+            .signupEntity({
+                CreateError,
+                DataValidator,
+                logger,
+                params: { ...request.body }
+            }).generate()).data.entity;
+
+
+        // check for the email available or not
+        const findUser = (await usersTable.findByEmail({
+            email: entity.email,
+            includeAll: false
+        })).data.users;
+
+        if (findUser !== null) {
+            throw new CreateError("Invalid signup details")
+        }
+
+        // super admin check
+        let superadmins = (await roleTable.findByRole({
+            superadmin: true
+        })).data.roles;
+
+        if (superadmins.length > 0) {
+            return res.status(400).json({
+                msg: "Only one super admin allowed",
+                data: {},
+            });
+        }
+
+        // encode password with jwt 
+        entity.password = hashSync(entity.password);
+
+        // create admin
+        const user = (await usersTable.create({ ...entity })).data.users;
+
+        // create a role for the user
+        const role = (await roleTable
+            .create({
+                user_uid: user.uid,
+                superadmin: true
+            })).data.roles;
+
+
         return res.status(200).json({
             msg: "User created successfully",
-            data: {},
+            data: { user },
         });
     } catch (error) {
         next(error);

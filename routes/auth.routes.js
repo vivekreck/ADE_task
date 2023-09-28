@@ -5,7 +5,7 @@ const auhtController = require("../controllers").auth;
 
 
 // self
-router.post("/auth/signup/:type", auhtController.postSignup);
+router.post("/auth/signup/self", auhtController.postSignupSelf);
 
 
 module.exports = router;

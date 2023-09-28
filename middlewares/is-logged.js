@@ -9,6 +9,6 @@ module.exports.isLogged = async (req, res, next) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ msg: translate(lang, "error_unknown"), data: {} });
+      .json({ msg: "Unknown error", data: {} });
   }
 };

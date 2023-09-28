@@ -9,7 +9,7 @@ exports.errorHandler = (err, req, res, next) => {
 
     if (!err.date) {
         const request = fromAdaptReq.adaptReq(req, res);
-        const msg = translate(request.lang, "unknown_error_contact_support")
+        const msg = "Unknown error"
         return res.status(500).json({
             msg,
             data: {}
