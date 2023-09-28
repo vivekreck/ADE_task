@@ -12,12 +12,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_uid',
         sourceKey: 'uid',
       });
-      User.hasOne(models.Role, {
+      User.hasOne(models.Permission, {
         as: 'permissions',
         foreignKey: 'user_uid',
         sourceKey: 'uid',
       });
-      User.hasMany(models.Role, {
+      User.hasMany(models.Feed, {
         as: 'feeds',
         foreignKey: 'user_uid',
         sourceKey: 'uid',

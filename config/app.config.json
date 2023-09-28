@@ -7,5 +7,9 @@
       "secure": true,
       "sameSite": "Strict"
     }
+  },
+  "jwt": {
+    "jwt_secret": "ykbewgaxbkujhbcd49652+asxjhabs8788",
+    "exp": "1d"
   }
 }

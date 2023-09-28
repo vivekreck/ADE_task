@@ -6,6 +6,7 @@ const db = require("../lib/database").database;
 const fromEntities = require("../utils/entity")
 const { hashSync, compareSync } = require("bcrypt-nodejs");
 const jwt = require('jsonwebtoken');
+const config = require(__dirname + '/../config/app.config.json');
 
 exports.postSignupSelf = async (req, res, next) => {
     try {
@@ -101,13 +102,45 @@ exports.postSignupSelf = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
     try {
-        const request = fromAdaptReq.adaptReq(req, res);
+        const request = fromAdaptReq.adaptReq(req, res)
+        const usersTable = db.methods.User({
+            logger, CreateError
+        });
 
+        let entity = (fromEntities.entities
+            .Auth
+            .loginEntity({
+                CreateError,
+                DataValidator,
+                logger,
+                params: { ...request.body }
+            }).generate()).data.entity;
+
+
+        // check for the email available or not
+        const findUser = (await usersTable.findByEmail({
+            email: entity.email,
+            includeAll: true
+        })).data.users;
+
+        if (findUser === null) {
+            throw new CreateError("Invalid Login details")
+        }
+        if (!compareSync(entity.password, findUser.password)) {
+            return res.send(401, {
+                msg: `Password must be correct!`,
+                data: {}
+            })
+        }
+        delete findUser.password;
+
+        const jwtToken = jwt.sign({ email: entity.email }, config.jwt.jwt_secret, { expiresIn: config.jwt.exp });
 
         return res.status(200).json({
             msg: "Success",
             data: {
-
+                user: findUser,
+                token: jwtToken,
             },
         });
     } catch (error) {
