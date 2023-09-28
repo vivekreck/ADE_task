@@ -16,6 +16,9 @@ exports.postSignupSelf = async (req, res, next) => {
         const usersTable = db.methods.User({
             logger, CreateError
         });
+        const permissionTable = db.methods.Permission({
+            logger, CreateError
+        });
 
         let entity = (fromEntities.entities
             .Auth
@@ -62,12 +65,53 @@ exports.postSignupSelf = async (req, res, next) => {
                 superadmin: true
             })).data.roles;
 
+        // create a role for the user
+        const permission = (await permissionTable
+            .create({
+                user_uid: user.uid,
+                feed: [{
+                    edit: "*",
+                    delete: "*",
+                    read: "*",
+                    create: "*"
+                }],
+                admin: [{
+                    edit: "*",
+                    delete: "*",
+                    read: "*",
+                    create: "*"
+                }],
+                user: [{
+                    edit: "*",
+                    delete: "*",
+                    read: "*",
+                    create: "*"
+                }]
+            })).data.permissions;
 
-        return res.status(200).json({
+
+        return res.status(201).json({
             msg: "User created successfully",
             data: { user },
         });
     } catch (error) {
+        next(error);
+    }
+};
+
+exports.login = async (req, res, next) => {
+    try {
+        const request = fromAdaptReq.adaptReq(req, res);
+
+
+        return res.status(200).json({
+            msg: "Success",
+            data: {
+
+            },
+        });
+    } catch (error) {
+        // console.log(error)
         next(error);
     }
 };
