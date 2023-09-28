@@ -66,7 +66,7 @@ exports.postSignupSelf = async (req, res, next) => {
                 superadmin: true
             })).data.roles;
 
-        // create a role for the user
+        // create a permission for the user
         const permission = (await permissionTable
             .create({
                 user_uid: user.uid,
@@ -88,6 +88,110 @@ exports.postSignupSelf = async (req, res, next) => {
                     read: "*",
                     create: "*"
                 }]
+            })).data.permissions;
+
+
+        return res.status(201).json({
+            msg: "User created successfully",
+            data: { user },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+exports.postSignupOthers = async (req, res, next) => {
+    try {
+        const request = fromAdaptReq.adaptReq(req, res);
+        const requestType = request.urlParams.type;
+
+        const roleTable = db.methods.Role({
+            logger, CreateError
+        });
+        const usersTable = db.methods.User({
+            logger, CreateError
+        });
+        const permissionTable = db.methods.Permission({
+            logger, CreateError
+        });
+
+        if (!["admin", "user"].includes(requestType)) {
+            return res.send(404, {
+                msg: "Unknow request made",
+                data: {}
+            })
+        }
+
+        // role check
+        const verifyUser = (await usersTable.findByEmail({
+            email: res.locals.email,
+        })).data.users;
+
+        if (verifyUser === null ||
+            !verifyUser.role ||
+            !verifyUser.role.superadmin ||
+            !verifyUser.permission ||
+            verifyUser.permission[requestType][0].create != "*") {
+            throw new CreateError("You are not authorised to access this file")
+        }
+
+        // body validation check
+        let entity = (fromEntities.entities
+            .Auth
+            .signupEntity({
+                CreateError,
+                DataValidator,
+                logger,
+                params: { ...request.body }
+            }).generate()).data.entity;
+
+
+        // check for the email available or not
+        const findUser = (await usersTable.findByEmail({
+            email: entity.email,
+            includeAll: false
+        })).data.users;
+
+        if (findUser !== null) {
+            throw new CreateError("Invalid signup details")
+        }
+
+        // encode password with jwt 
+        entity.password = hashSync(entity.password);
+
+        // create admin
+        const user = (await usersTable.create({ ...entity })).data.users;
+
+        // create a role for the user
+        if (requestType == 'admin') {
+            const role = (await roleTable
+                .create({
+                    user_uid: user.uid,
+                    admin: true
+                })).data.roles;
+        } else {
+            const role = (await roleTable
+                .create({
+                    user_uid: user.uid,
+                    user: true
+                })).data.roles;
+        }
+
+        let permissionEntity = (fromEntities.entities
+            .Auth
+            .permissionEntity({
+                CreateError,
+                DataValidator,
+                logger,
+                params: { ...request.body }
+            }).generate()).data.entity;
+
+        // create a permission for the user
+        const permission = (await permissionTable
+            .create({
+                user_uid: user.uid,
+                ...permissionEntity
             })).data.permissions;
 
 
