@@ -1,0 +1,11 @@
+{
+  "cookie": {
+    "name": "test",
+    "config": {
+      "maxAge": 86400000,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Strict"
+    }
+  }
+}
