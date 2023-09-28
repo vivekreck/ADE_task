@@ -17,10 +17,10 @@ const cookieConfig = {
 exports.postSignup = async (req, res, next) => {
     try {
         const request = fromAdaptReq.adaptReq(req, res)
-
+        console.log(request)
         return res.status(200).json({
-            msg: result.msg,
-            data: { ...result.data },
+            msg: "User created successfully",
+            data: {},
         });
     } catch (error) {
         next(error);

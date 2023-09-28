@@ -3,9 +3,9 @@ const router = express.Router();
 
 const auhtController = require("../controllers").auth;
 
-// router.post("/auth/signup", auhtController.postSignup);
 
-// 
+// self
+router.post("/auth/signup/:type", auhtController.postSignup);
 
 
 module.exports = router;
