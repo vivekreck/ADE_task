@@ -9,6 +9,8 @@ console.log(
   `******** Application started in ${process.env.NODE_ENV} mode ********`
 );
 
+const schedule = require('./utils/scheduler')();
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
