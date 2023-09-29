@@ -1,8 +1,9 @@
-exports.PermissionEntity = ({
+exports.updateEntity = ({
     CreateError,
     DataValidator,
     logger,
     params = {
+        name,
         feed,
         admin,
         basic
@@ -14,10 +15,17 @@ exports.PermissionEntity = ({
                 const validate = DataValidator({ CreateError });
 
                 let entity = {
+                    name: null,
                     feed: null,
                     admin: null,
                     basic: null,
                 };
+
+                if (params.name) {
+                    entity.name = validate.name(params.name).data.value;
+                } else {
+                    delete entity.name;
+                }
 
                 if (params?.feed && typeof params.feed == 'object') {
                     entity.feed = [{
@@ -34,7 +42,6 @@ exports.PermissionEntity = ({
                         create: ""
                     }]
                 }
-
                 if (params?.admin && typeof params.admin == 'object') {
                     entity.admin = [{
                         edit: params.admin[0].edit || "",
@@ -72,7 +79,7 @@ exports.PermissionEntity = ({
                     data: { entity }
                 }
             } catch (error) {
-                logger.error('Failed to permission entity: %s', error);
+                logger.error('Failed to update user entity: %s', error);
                 if (error instanceof CreateError) {
                     throw error;
                 }

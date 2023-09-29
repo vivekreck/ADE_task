@@ -137,7 +137,7 @@ exports.updateFeed = async (req, res, next) => {
         // data validaion
         let entity = (fromEntities.entities
             .Feed
-            .createFeedEntity({
+            .updateFeedEntity({
                 CreateError,
                 DataValidator,
                 logger,

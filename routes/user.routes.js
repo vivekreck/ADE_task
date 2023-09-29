@@ -9,6 +9,7 @@ router.get("/user/:type", isLogged, userController.fetchAllUsers);
 
 router.delete("/user/delete/:uid", isLogged, userController.deleteUser)
 
+router.patch("/user/:uid", isLogged, userController.updateUser)
 
 
 module.exports = router;

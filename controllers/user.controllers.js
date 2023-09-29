@@ -122,3 +122,74 @@ exports.deleteUser = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.updateUser = async (req, res, next) => {
+    try {
+        const request = fromAdaptReq.adaptReq(req, res)
+        const uid = request.urlParams.uid;
+
+        const usersTable = db.methods.User({
+            logger, CreateError
+        });
+        const permissionTable = db.methods.Permission({
+            logger, CreateError
+        });
+
+        const uidUser = (await usersTable.findByUID({
+            uid,
+        })).data.users;
+
+        let uidUserRole = "basic";
+        if (uidUser?.role?.admin) uidUserRole = "admin";
+        if (uidUser?.role?.superadmin) uidUserRole = "superadmin";
+
+        // authorization check
+        const verifyUser = (await usersTable.findByEmail({
+            email: res.locals.email,
+        })).data.users;
+
+        if (
+            !verifyUser.permission ||
+            !verifyUser.permission[uidUserRole] ||
+            verifyUser.permission[uidUserRole][0].delete == "") {
+            throw new CreateError("You are not authorised to access this file")
+        }
+
+        // data validaion
+        let entity = (fromEntities.entities
+            .User
+            .updateFeedEntity({
+                CreateError,
+                DataValidator,
+                logger,
+                params: { ...request.body }
+            }).generate()).data.entity;
+
+
+        if (entity.name)
+            // check for the email available or not
+            (await usersTable.updateByUID({
+                name: entity.name,
+                uid: uid,
+            }))
+
+        delete entity.name;
+        await permissionTable.updateByUID({
+            ...entity,
+            uid: uid,
+        })
+
+        // fetch user
+        const resUser = (await usersTable.findByUID({
+            uid,
+        })).data.users;
+
+        return res.status(200).json({
+            msg: "Success",
+            data: { user: resUser },
+        });
+    } catch (error) {
+        // console.log(error)
+        next(error);
+    }
+};
