@@ -5,9 +5,8 @@
 - [Installation](#markdown-header-Installation)
 - [Body Validation](#markdown-header-body-whitelist)
 - [Api Doc](#markdown-header-api-doc)
-- [Why toJSON() on methods model](#markdown-header-why-tojson-on-methods-model-)
 - [For validation on request](#markdown-header-for-validation-on-request)
-- [For Pagination on response](#markdown-header-for-Pagination-on-response)
+
 - [Authentication For Protectted Routes](#markdown-header-for-Authentication-For-Protected-routes)
 
 ## Installation
@@ -136,7 +135,7 @@ I have creating middleware for Every request that requires a authentication then
 
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| <img src="https://avatars.githubusercontent.com/u/77279250?s=96&v=4" width="100px;"/><br /><a href="https://github.com/vivekreck"><sub>Vivek Kumar Singh</sub></a>
-| :---: | :---: |
+ <img src="https://avatars.githubusercontent.com/u/77279250?s=96&v=4" width="100px;"/><br /><a href="https://github.com/vivekreck"><sub>Vivek Kumar Singh</sub></a>
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
