@@ -187,7 +187,6 @@ exports.deleteFeed = async (req, res, next) => {
             throw new CreateError("You are not authorised to access this file")
         }
 
-        // check for the email available or not
         let feed = (await feedsTable.deleteByUID({
             uid: uid,
         }))

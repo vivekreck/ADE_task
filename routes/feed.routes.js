@@ -5,15 +5,15 @@ const feedController = require("../controllers").feed;
 const isLogged = require('../middlewares/is-logged').isLogged;
 
 // create 
-router.post("/auth/feed/create", isLogged, feedController.createFeed)
+router.post("/feed/create", isLogged, feedController.createFeed)
 
 // update
-router.patch("/auth/feed/:uid", isLogged, feedController.updateFeed)
+router.patch("/feed/:uid", isLogged, feedController.updateFeed)
 
 // delete
-router.delete("/auth/feed/:uid", isLogged, feedController.deleteFeed)
+router.delete("/feed/:uid", isLogged, feedController.deleteFeed)
 
 // read
-router.get("/auth/feed/fetch", isLogged, feedController.fetchAllFeed)
+router.get("/feed/fetch", isLogged, feedController.fetchAllFeed)
 
 module.exports = router;

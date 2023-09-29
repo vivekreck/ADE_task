@@ -60,3 +60,65 @@ exports.fetchAllUsers = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.deleteUser = async (req, res, next) => {
+    try {
+        const request = fromAdaptReq.adaptReq(req, res)
+        const uid = request.urlParams.uid;
+
+        const roleTable = db.methods.Role({
+            logger, CreateError
+        });
+        const usersTable = db.methods.User({
+            logger, CreateError
+        });
+        const permissionTable = db.methods.Permission({
+            logger, CreateError
+        });
+        const feedsTable = db.methods.Feed({
+            logger, CreateError
+        });
+
+        const uidUser = (await usersTable.findByUID({
+            uid,
+        })).data.users;
+
+        let uidUserRole = "basic";
+        if (uidUser?.role?.admin) uidUserRole = "admin";
+        if (uidUser?.role?.superadmin) uidUserRole = "superadmin";
+
+        // authorization check
+        const verifyUser = (await usersTable.findByEmail({
+            email: res.locals.email,
+        })).data.users;
+
+        if (
+            !verifyUser.permission ||
+            !verifyUser.permission[uidUserRole] ||
+            verifyUser.permission[uidUserRole][0].delete == "") {
+            throw new CreateError("You are not authorised to access this file")
+        }
+
+        let permission = (await permissionTable.deleteByUserUID({
+            uid: uid,
+        }))
+        let role = (await roleTable.deleteByUserUID({
+            uid: uid,
+        }))
+        let feed = (await feedsTable.deleteByUserUID({
+            uid: uid,
+        }))
+        let user = (await usersTable.deleteByUID({
+            uid: uid,
+        }))
+
+
+        return res.status(200).json({
+            msg: "Success",
+            data: {},
+        });
+    } catch (error) {
+        // console.log(error)
+        next(error);
+    }
+};
