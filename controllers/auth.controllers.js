@@ -128,9 +128,10 @@ exports.postSignupOthers = async (req, res, next) => {
             email: res.locals.email,
         })).data.users;
 
-        if (verifyUser === null ||
-            !verifyUser.role ||
-            !verifyUser.role.superadmin ||
+        if (
+            // verifyUser === null ||
+            // verifyUser.role ||
+            // verifyUser.role.superadmin ||
             !verifyUser.permission ||
             !verifyUser.permission[requestType] ||
             verifyUser.permission[requestType][0].create != "*") {
