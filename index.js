@@ -14,7 +14,6 @@ const schedule = require('./utils/scheduler')();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
 
 const routes = require("./routes");
 
@@ -24,7 +23,6 @@ const errorHandler = require("./utils/error/error-handler").errorHandler;
 
 const app = express();
 
-app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
