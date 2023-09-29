@@ -1,10 +1,11 @@
-exports.LoginEntity = ({
+exports.updateEntity = ({
     CreateError,
     DataValidator,
     logger,
     params = {
-        email,
-        password
+        name,
+        url,
+        desciption
     }
 }) => {
     return Object.freeze({
@@ -13,21 +14,27 @@ exports.LoginEntity = ({
                 const validate = DataValidator({ CreateError });
 
                 let entity = {
-                    email: null,
-                    password: null,
+                    name: null,
+                    url: null,
+                    desciption: null
                 };
 
-                if (params.email) {
-                    entity.email = validate.email(params.email).data.value;
+                if (params.name) {
+                    entity.name = validate.name(params.name).data.value;
                 } else {
-                    throw new CreateError('Email required')
+                    delete entity.name;
                 }
 
-                if (params.password) {
-                    const password = params.password;
-                    entity.password = validate.password(password).data.value;
+                if (params.url) {
+                    entity.url = validate.url(params.url).data.value;
                 } else {
-                    throw new CreateError('Password required')
+                    delete entity.url;
+                }
+
+                if (params.desciption) {
+                    entity.desciption = validate.desciption(params.desciption).data.value;
+                } else {
+                    delete entity.desciption;
                 }
 
                 return {
