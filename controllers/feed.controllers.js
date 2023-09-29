@@ -8,15 +8,15 @@ const { hashSync, compareSync } = require("bcrypt-nodejs");
 const jwt = require('jsonwebtoken');
 const config = require(__dirname + '/../config/app.config.json');
 
-exports.fetchAllUsers = async (req, res, next) => {
+exports.fetchAllFeed = async (req, res, next) => {
     try {
         const request = fromAdaptReq.adaptReq(req, res)
         const requestType = request.urlParams.type;
 
-        const roleTable = db.methods.Role({
+        const usersTable = db.methods.User({
             logger, CreateError
         });
-        const usersTable = db.methods.User({
+        const feedsTable = db.methods.Feed({
             logger, CreateError
         });
 
@@ -25,34 +25,29 @@ exports.fetchAllUsers = async (req, res, next) => {
             email: res.locals.email,
         })).data.users;
 
-        if (verifyUser === null ||
-            !verifyUser.role ||
-            !(verifyUser.role.superadmin || verifyUser.role.admin) ||
+
+        if (
             !verifyUser.permission ||
-            verifyUser.permission[requestType][0].read == "") {
+            !verifyUser.permission["feed"] ||
+            !verifyUser.permission["feed"][0] ||
+            verifyUser.permission["feed"][0].read == "") {
             throw new CreateError("You are not authorised to access this file")
         }
 
         let roleQuery = {};
-        if (verifyUser.permission[requestType][0].read != "*") {
-            roleQuery = {
-                user_uid: verifyUser.permission[requestType][0].read.split(",")
+        if (verifyUser.permission["feed"][0].read != "*") {
+            query = {
+                uid: verifyUser.permission["feed"][0].read.split(",")
             }
         }
 
-        roleQuery[requestType] = true
-        // super admin check
-        let roles = (await roleTable.findByRole(roleQuery)).data.roles;
-
-        let uids = roles.map(role => role.user_uid)
-
         // check for the email available or not
-        const findUser = (await usersTable.findAll({ uid: uids })).data.users;
+        const findFeed = (await feedsTable.findAll(roleQuery)).data.feeds;
 
         return res.status(200).json({
             msg: "Success",
             data: {
-                user: findUser,
+                feeds: findFeed,
             },
         });
     } catch (error) {
