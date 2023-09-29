@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      user: {
+      basic: {
         type: Sequelize.STRING,
         allowNull: false,
       },

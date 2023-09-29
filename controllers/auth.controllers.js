@@ -32,7 +32,7 @@ exports.postSignupSelf = async (req, res, next) => {
 
 
         // check for the email available or not
-        const findUser = (await usersTable.findByEmail({
+        const findUser = (await usersTable.findWithoutInclude({
             email: entity.email,
             includeAll: false
         })).data.users;
@@ -82,7 +82,7 @@ exports.postSignupSelf = async (req, res, next) => {
                     read: "*",
                     create: "*"
                 }],
-                user: [{
+                basic: [{
                     edit: "*",
                     delete: "*",
                     read: "*",
@@ -116,7 +116,7 @@ exports.postSignupOthers = async (req, res, next) => {
             logger, CreateError
         });
 
-        if (!["admin", "user"].includes(requestType)) {
+        if (!["admin", "basic"].includes(requestType)) {
             return res.send(404, {
                 msg: "Unknow request made",
                 data: {}
@@ -132,6 +132,7 @@ exports.postSignupOthers = async (req, res, next) => {
             !verifyUser.role ||
             !verifyUser.role.superadmin ||
             !verifyUser.permission ||
+            !verifyUser.permission[requestType] ||
             verifyUser.permission[requestType][0].create != "*") {
             throw new CreateError("You are not authorised to access this file")
         }
@@ -174,7 +175,7 @@ exports.postSignupOthers = async (req, res, next) => {
             const role = (await roleTable
                 .create({
                     user_uid: user.uid,
-                    user: true
+                    basic: true
                 })).data.roles;
         }
 

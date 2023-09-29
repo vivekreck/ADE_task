@@ -38,10 +38,10 @@ module.exports = (sequelize, DataTypes) => {
         return this.setDataValue("admin", JSON.stringify(value));
       },
     },
-    user: {
+    basic: {
       type: DataTypes.TEXT,
       get: function () {
-        const value = this.getDataValue("user");
+        const value = this.getDataValue("basic");
         if (!value) {
           return value;
         } else {
@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       set: function (value) {
-        return this.setDataValue("user", JSON.stringify(value));
+        return this.setDataValue("basic", JSON.stringify(value));
       },
     },
   }, {

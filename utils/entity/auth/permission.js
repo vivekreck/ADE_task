@@ -5,7 +5,7 @@ exports.PermissionEntity = ({
     params = {
         feed,
         admin,
-        user
+        basic
     }
 }) => {
     return Object.freeze({
@@ -16,7 +16,7 @@ exports.PermissionEntity = ({
                 let entity = {
                     feed: null,
                     admin: null,
-                    user: null,
+                    basic: null,
                 };
 
                 if (params?.feed && typeof params.feed == 'object') {
@@ -37,12 +37,12 @@ exports.PermissionEntity = ({
                     }];
                 }
 
-                if (params?.user && typeof params.user == 'object') {
-                    entity.user = [{
-                        edit: params.user[0].edit || "",
-                        delete: params.user[0].delete || "",
-                        read: params.user[0].read || "",
-                        create: params.user[0].create || ""
+                if (params?.basic && typeof params.basic == 'object') {
+                    entity.basic = [{
+                        edit: params.basic[0].edit || "",
+                        delete: params.basic[0].delete || "",
+                        read: params.basic[0].read || "",
+                        create: params.basic[0].create || ""
                     }];
                 }
 

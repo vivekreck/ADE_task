@@ -13,6 +13,9 @@ exports.fetchAllUsers = async (req, res, next) => {
         const request = fromAdaptReq.adaptReq(req, res)
         const requestType = request.urlParams.type;
 
+        const roleTable = db.methods.Role({
+            logger, CreateError
+        });
         const usersTable = db.methods.User({
             logger, CreateError
         });
@@ -30,14 +33,21 @@ exports.fetchAllUsers = async (req, res, next) => {
             throw new CreateError("You are not authorised to access this file")
         }
 
-        let query = {};
+        let roleQuery = {};
         if (verifyUser.permission[requestType][0].read != "*") {
             query = {
-                uid: verifyUser.permission[requestType][0].read.split(",")
+                user: verifyUser.permission[requestType][0].read.split(",")
             }
         }
+
+        roleQuery[requestType] = true
+        // super admin check
+        let roles = (await roleTable.findByRole(roleQuery)).data.roles;
+
+        let uids = roles.map(role => role.user_uid)
+
         // check for the email available or not
-        const findUser = (await usersTable.findAll(query)).data.users;
+        const findUser = (await usersTable.findAll({ uid: uids })).data.users;
 
         if (findUser === null) {
             throw new CreateError("Invalid Login details")
